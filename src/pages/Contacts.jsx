@@ -1,0 +1,9 @@
+import {useState} from 'react'
+import {Users,Phone,Mail,ArrowUpRight} from 'lucide-react'
+import {useNavigate} from 'react-router-dom'
+import {useDemo} from '../context/DemoDataContext'
+import {day,projectFor} from '../utils/format'
+import {Avatar,Badge,Empty,PageTop,SearchField} from '../components/common/UI'
+export default function Contacts(){const {leads,projects}=useDemo(),[search,setSearch]=useState(''),[type,setType]=useState('All'),nav=useNavigate();const list=leads.filter(l=>(!search||`${l.fullName} ${l.phone} ${l.email}`.toLowerCase().includes(search.toLowerCase()))&&(type==='All'||(type==='Customer'&&l.status==='Converted')||(type==='Prospect'&&l.status!=='Converted')))
+ return <><PageTop title="Contacts" description="A unified directory derived from the demo lead database." eyebrow="RELATIONSHIP MANAGEMENT"/><div className="card"><div className="filters-row" style={{padding:'17px 17px 0'}}><SearchField value={search} onChange={setSearch} placeholder="Search contacts"/><select className="select" aria-label="Contact type" value={type} onChange={e=>setType(e.target.value)}>{['All','Prospect','Customer'].map(t=><option key={t}>{t}</option>)}</select><span className="tiny-muted">{list.length} contacts</span></div><div className="table-scroll"><table className="data-table"><thead><tr><th>Contact</th><th>Email</th><th>Phone</th><th>Customer type</th><th>Interested project</th><th>Last interaction</th><th></th></tr></thead><tbody>{list.map(l=><tr key={l.id}><td className="table-main">{l.fullName}</td><td>{l.email}</td><td>{l.phone}</td><td><Badge value={l.status==='Converted'?'Converted':'Contacted'}/></td><td>{projectFor(projects,l.projectId)?.name}</td><td>{day(l.lastContactedAt)}</td><td><button className="link-action" onClick={()=>nav(`/leads?lead=${l.id}`)}>Lead record <ArrowUpRight size={12} style={{display:'inline'}}/></button></td></tr>)}</tbody></table>{!list.length&&<Empty title="No matching contacts"/>}</div></div></>
+}
